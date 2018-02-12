@@ -1,0 +1,24 @@
+FROM alpine as timezone
+RUN apk --update add tzdata && \
+    cp /usr/share/zoneinfo/Asia/Tokyo /etc/localtime && \
+    apk del tzdata && rm -rf /var/cache/apk/*
+
+FROM networkmgmt/dumb-init as initproc
+
+FROM alpine:3.7
+MAINTAINER Tsubasa Nagano <networkmgmt [at] icloud.com>
+
+RUN adduser -D -H syslog syslog
+RUN set -ex && \
+    apk update && \
+    apk add --no-cache syslog-ng && \
+    rm -rf /var/cache/apk/*
+
+VOLUME ["/var/log/syslog"]
+COPY --from=timezone /etc/localtime /etc/localtime
+COPY --from=initproc dumb-init /sbin/dumb-init
+COPY syslog-ng.conf /etc/syslog-ng/syslog-ng.conf
+
+EXPOSE     514 514/udp
+ENTRYPOINT ["/sbin/dumb-init", "--", \
+            "syslog-ng", "--foreground", "--stderr", "--worker-threads=4"]
