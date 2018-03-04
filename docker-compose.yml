@@ -11,6 +11,6 @@ services:
       - 514:514
       - 514:514/udp
     volumes:
-      - ./syslog-ng/syslog-ng.conf:/etc/syslog-ng/syslog-ng.conf:ro
-      - ~/docker/.database/syslog:/var/log/syslog:rw
+      - ./syslog-ng.conf:/etc/syslog-ng/syslog-ng.conf:ro
+      - ~/.database/syslog-ng:/var/log/syslog:rw
     restart: always
